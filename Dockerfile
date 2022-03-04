@@ -1,11 +1,11 @@
 FROM ubuntu:18.04
 RUN apt update
 RUN apt upgrade -y
-ADD crontab /etc/cron.d/hello-cron
-RUN chmod 0644 /etc/cron.d/hello-cron
-RUN  apt install cron -y
-COPY PyMail-MailJet.py /home/python/
-RUN chmod +x /home/python/PyMail-MailJet.py
+RUN touch /var/log/cron.log
+ADD PyMail-MailJet.py /PyMail-MailJet.py
+RUN chmod 0644 /PyMail-MailJet.py
+RUN apt-get -y install cron
 RUN apt-get install -y python python-pip
 RUN pip install mailjet-rest==1.3.4
-CMD cron 
+RUN crontab -l | { cat; echo "*/2 * * * * /usr/bin/python PyMail-MailJet.py"; } | crontab -
+CMD cron && tail -f  /var/log/cron.log
